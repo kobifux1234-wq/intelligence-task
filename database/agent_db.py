@@ -20,6 +20,8 @@ class AgentDB:
 
     @staticmethod
     def create_agent(data:dict):
+        if data.get("agent_rank") not in ["Commander", "Junior","Senior"]:
+            raise Exception("Incorrect agent rank")
         conn= None
         cursor = None
         try:
@@ -59,6 +61,8 @@ class AgentDB:
     
     @staticmethod
     def update_agent(id,data):
+        if data.get("agent_rank") not in ["Commander", "Junior","Senior"]:
+            raise Exception("Incorrect agent rank")
         conn= None
         cursor = None
         try:
@@ -156,3 +160,5 @@ class AgentDB:
         with db_c.get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM agents WHERE is_active = TRUE")
+                row= cursor.fetchone()
+        return row[0] if row is not None else row 

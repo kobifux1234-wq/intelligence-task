@@ -1,4 +1,5 @@
 from database.db_connection import DB_connection as db_c
+from database.agent_db import AgentDB as a_db
 class MissionDB:
     @staticmethod
     def mission_by_id(id: int):
@@ -18,6 +19,10 @@ class MissionDB:
                 
     @staticmethod
     def create_mission(data:dict):
+        if not 0<data.get("difficulty")<11 or not 0<data.get("importance")<11:
+            raise Exception("Incorrect difficulty or importance data")
+        risk_level_num = data.get("difficulty")*2 + data.get("importance")
+        data["risk_level"] = "LOW" if 0<=risk_level_num<=9 else "MEDIUM" if 10<=risk_level_num<=17 else "HIGH" if 18<=risk_level_num<=24 else "CRITICAL"
         conn= None
         cursor = None
         try:
@@ -56,26 +61,57 @@ class MissionDB:
         return rows
 
     @staticmethod
-    def assign_mission(m_id,a_id):
-        conn= None
+    def assign_mission(m_id, a_id):
+        conn = None
         cursor = None
         try:
-            conn=db_c.get_connection()
-            cursor = conn.cursor()
-            cursor.execute("UPDATE missions SET assigned_agent_id = %s WHERE id= %s",(a_id,m_id))
+            conn = db_c.get_connection()
+            cursor = conn.cursor() 
+            cursor.execute("SELECT risk_level, status FROM missions WHERE id = %s", (m_id,))
+            mission = cursor.fetchone()
+            if not mission:
+                return False 
+            risk, status = mission
+            
+            if status != 'NEW':
+                return False  
+            cursor.execute("SELECT agent_rank, is_active FROM agents WHERE id = %s", (a_id,))
+            agent = cursor.fetchone()
+            if not agent:
+                return False
+            rank, is_active = agent
+            
+            if not is_active:
+                return False
+            if risk == 'CRITICAL' and rank != 'Commander':
+                return False
+            cursor.execute("SELECT COUNT(*) FROM missions WHERE assigned_agent_id = %s AND status IN ('ASSIGNED', 'IN_PROGRESS')",(a_id,))
+            active_missions = cursor.fetchone()[0]
+            
+            if active_missions >= 3:
+                return False
+            cursor.execute("UPDATE missions SET assigned_agent_id = %s, status = 'ASSIGNED' WHERE id = %s AND status = 'NEW'",(a_id, m_id))
             conn.commit()
-            return cursor.rowcount>0
-        except: raise Exception("Error happened in update assign mission")
+            
+            return cursor.rowcount > 0
+        
+        except: raise Exception("Error in assign mission")
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
+
     
     @staticmethod
     def update_mission_status(id, status):
         conn= None
         cursor = None
+        mission = MissionDB.mission_by_id(id)
+        if mission is None:
+            return False
+            
+         
         try:
             conn=db_c.get_connection()
             cursor = conn.cursor()
