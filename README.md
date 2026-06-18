@@ -137,21 +137,21 @@ intelligence-task-manager/
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/agents/` | Create a new agent |
-| GET | `/agents/` | Get all agents |
-| GET | `/agents/{id}` | Get agent by ID |
-| PUT | `/agents/{id}` | Update agent |
-| PUT | `/agents/{id}/deactivate` | Deactivate agent |
-| GET | `/agents/{id}/performance` | Get agent performance |
+| POST | /agents/ | Create a new agent |
+| GET | /agents/ | Get all agents |
+| GET | /agents/{id} | Get agent by ID |
+| PUT | /agents/{id} | Update agent |
+| PUT | /agents/{id}/deactivate | Deactivate agent |
+| GET | /agents/{id}/performance | Get agent performance |
 
-## Missions endpoints — `mission_routes.py`
+## Missions endpoints — mission_routes.py
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/missions/` | Create a new mission |
-| GET | `/missions/` | Get all missions |
-| GET | `/missions/{id}` | Get mission by ID |
-| PUT | /missions/{id}/assign/{agent_id} | Assign mission to agent (6 checks, see below) |
+| POST | /missions/ | Create a new mission |
+| GET | /missions/ | Get all missions |
+| GET | /missions/{id} | Get mission by ID |
+| PUT | /missions/{id}/assign/{agent_id} | Assign mission to agent |
 | PUT | /missions/{id}/start | Start mission |
 | PUT | /missions/{id}/complete | Finish mission successfully |
 | PUT | /missions/{id}/fail | Finish mission as failed |
