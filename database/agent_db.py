@@ -171,4 +171,4 @@ class AgentDB:
             with conn.cursor() as cursor:
                 cursor.execute("SELECT COUNT(*) FROM agents WHERE is_active = TRUE")
                 row= cursor.fetchone()
-        return row[0] if row is not None else row 
+        return row[0] if row is not None else 0

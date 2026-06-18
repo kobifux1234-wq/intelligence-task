@@ -1,16 +1,17 @@
 from database.db_connection import DB_connection as db_c
 from database.agent_db import AgentDB as a_db
+import mysql.connector
 class MissionDB:
     @staticmethod
-    def mission_by_id(id: int):
+    def get_mission_by_id(id: int):
         conn= None
         cursor = None
         try:
             conn=db_c.get_connection()
-            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
             cursor.execute("SELECT * FROM missions WHERE id = %s", (id,))
             return cursor.fetchone()
-        except: raise Exception("Error: connection problem to get ")
+        except mysql.connector.Error as e: raise Exception("Error: connection problem to get ") from e
         finally:    
             if cursor:
                 cursor.close()
@@ -27,16 +28,16 @@ class MissionDB:
         cursor = None
         try:
             conn=db_c.get_connection()
-            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
             key = ", ".join(data.keys())
             placeholders= ", ".join(["%s"]*len(data))
             sql =f"INSERT INTO missions({key}) VALUES ({placeholders})"
             cursor.execute(sql,list(data.values()))
             conn.commit()
             row = cursor.lastrowid
-            return MissionDB.mission_by_id(row)
+            return MissionDB.get_mission_by_id(row)
         
-        except: raise Exception("have problem with create mission")
+        except mysql.connector.Error as e: raise Exception("have problem with create mission") from e
         finally:
             if cursor:
                 cursor.close()
@@ -44,15 +45,16 @@ class MissionDB:
                 conn.close()
         return row
     
+    @staticmethod
     def get_all_missions():
         conn= None
         cursor = None
         try:
             conn=db_c.get_connection()
-            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
             cursor.execute("SELECT * FROM missions")
             rows=cursor.fetchall()
-        except: raise Exception("error get all missions")
+        except mysql.connector.Error as e: raise Exception("error get all missions") from e
         finally:
             if cursor:
                 cursor.close()
@@ -95,7 +97,7 @@ class MissionDB:
             
             return cursor.rowcount > 0
         
-        except: raise Exception("Error in assign mission")
+        except mysql.connector.Error as e: raise Exception("Error in assign mission") from e
         finally:
             if cursor:
                 cursor.close()
@@ -105,20 +107,39 @@ class MissionDB:
     
     @staticmethod
     def update_mission_status(id, status):
+        valid_statuses = ["IN_PROGRESS", "COMPLETED", "FAILED", "CANCELLED"]
+        if status not in valid_statuses:
+            raise Exception("Incorrect status value")
         conn= None
         cursor = None
-        mission = MissionDB.mission_by_id(id)
-        if mission is None:
-            return False
-            
-         
         try:
             conn=db_c.get_connection()
             cursor = conn.cursor()
+            cursor.execute("SELECT status, assigned_agent_id FROM missions WHERE id = %s", (id,))
+            mission = cursor.fetchone()
+            if not mission:
+                return False
+            current_status, a_id = mission
+            
+            if status == "IN_PROGRESS" and current_status != "ASSIGNED":
+                raise ValueError("Only a mission with status ASSIGNED can be started")
+            if status in ("COMPLETED", "FAILED") and current_status != "IN_PROGRESS":
+                raise ValueError("Only a mission with status IN_PROGRESS can be finished")
+            if status == "CANCELLED" and current_status not in ("NEW", "ASSIGNED"):
+                raise ValueError("Only a mission with status NEW or ASSIGNED can be canceled")
+ 
             cursor.execute("UPDATE missions SET status = %s WHERE id = %s", (status,id))
             conn.commit()
-            return cursor.rowcount >0
-        except: raise Exception("Error happened in update mission status")
+            updated = cursor.rowcount >0
+ 
+            if updated and status == "COMPLETED" and a_id is not None:
+                a_db.increment_completed(a_id)
+            if updated and status == "FAILED" and a_id is not None:
+                a_db.increment_failed(a_id)
+ 
+            return updated
+        except mysql.connector.Error as e:
+            raise Exception("Error happened in update mission status") from e
         finally:
             if cursor:
                 cursor.close()
@@ -131,10 +152,10 @@ class MissionDB:
         cursor = None
         try:
             conn=db_c.get_connection()
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM missions WHERE assigned_agent_id= %s",(id,))
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM missions WHERE assigned_agent_id= %s AND status IN ('ASSIGNED','IN_PROGRESS')",(id,))
             return cursor.fetchall()
-        except:raise Exception("Error happened in open missions by agent")
+        except mysql.connector.Error as e:raise Exception("Error happened in open missions by agent") from e
         finally: 
             if cursor:
                 cursor.close()
@@ -150,7 +171,7 @@ class MissionDB:
             cursor = conn.cursor()
             cursor.execute("SELECT COUNT(*) FROM missions")
             return cursor.fetchone()[0]
-        except:raise Exception("Error happened in count all missions")
+        except mysql.connector.Error as e:raise Exception("Error happened in count all missions") from e
         finally: 
             if cursor:
                 cursor.close()
@@ -166,7 +187,7 @@ class MissionDB:
             cursor = conn.cursor()
             cursor.execute("SELECT COUNT(*) FROM missions WHERE status = %s",(status,))
             return cursor.fetchone()[0]
-        except:raise Exception("Error happened in count by status")
+        except mysql.connector.Error as e:raise Exception("Error happened in count by status") from e
         finally: 
             if cursor:
                 cursor.close()
@@ -175,7 +196,7 @@ class MissionDB:
     
     @staticmethod
     def count_open_missions():
-        return MissionDB.count_by_status("NEW")
+        return MissionDB.count_by_status("NEW")+MissionDB.count_by_status("ASSIGNED")+MissionDB.count_by_status("IN_PROGRESS")
     
     @staticmethod
     def count_critical_missions():
@@ -185,7 +206,7 @@ class MissionDB:
         try:
             conn=db_c.get_connection()
             cursor = conn.cursor()
-            cursor.execute("SELECT COUNT(*) FROM missions WHERE risk_level = %s",("Critical",))
+            cursor.execute("SELECT COUNT(*) FROM missions WHERE risk_level = %s",("CRITICAL",))
             return cursor.fetchone()[0]
         except:raise Exception("Error happened in count by status")
         finally: 
@@ -199,12 +220,15 @@ class MissionDB:
         cursor = None
         try:
             conn=db_c.get_connection()
-            cursor = conn.cursor()
-            cursor.execute("SELECT assigned_agent_id, COUNT(*) as mission_count FROM missions WHERE status = 'Completed'\
+            cursor = conn.cursor(dictionary=True)
+            cursor.execute("SELECT assigned_agent_id, COUNT(*) as mission_count FROM missions WHERE status = 'COMPLETED'\
                         GROUP BY assigned_agent_id ORDER BY mission_count DESC LIMIT 1")
-            
-            return cursor.fetchone()
-        except:raise Exception("Error happened in get_top_agent")
+            top=cursor.fetchone()
+            if top:
+                return a_db.agent_by_id(top["assigned_agent_id"])
+            else:
+                return("agent not found")
+        except mysql.connector.Error as e:raise Exception("Error happened in get_top_agent") from e
         finally: 
             if cursor:
                 cursor.close()

@@ -59,7 +59,7 @@ Role | Method
 ---- | ----
 Create new mission ad return full object | create_mission(data)
 Return all missions |  get_all_missions()
-Return mission by ID or NONE | get_mission_by_id(id)
+Return mission by ID or NONE | get_get_mission_by_id(id)
 Assigns a task to an agent | assign_mission(m_id, a_id)
 Used for status changing | update_mission_status(id, status)
 Return missions ASSIGNED/IN_PROGRESS of agent | get_open_missions_by_agent(id)
@@ -111,3 +111,91 @@ docker run -d --name intelligence-mysql -e MYSQL_ROOT_PASSWORD=1234 \
 ```
 
 # DAY 2
+Today we build the server for database that we created yesterday
+
+## Updated folder structure
+
+```
+intelligence-task-manager/
+├── main.py
+├── database/
+│   ├── db_connection.py
+│   ├── agent_db.py
+│   └── mission_db.py
+├── routes/
+│   ├── agent_routes.py
+│   ├── mission_routes.py
+│   └── report_routes.py
+├── logs/
+│   └── app.log
+├── README.md
+├── requirements.txt
+└── .gitignore
+```
+
+## Agents endpoints — `agent_routes.py`
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/agents/` | Create a new agent |
+| GET | `/agents/` | Get all agents |
+| GET | `/agents/{id}` | Get agent by ID |
+| PUT | `/agents/{id}` | Update agent |
+| PUT | `/agents/{id}/deactivate` | Deactivate agent |
+| GET | `/agents/{id}/performance` | Get agent performance |
+
+## Missions endpoints — `mission_routes.py`
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/missions/` | Create a new mission |
+| GET | `/missions/` | Get all missions |
+| GET | `/missions/{id}` | Get mission by ID |
+| PUT | /missions/{id}/assign/{agent_id} | Assign mission to agent (6 checks, see below) |
+| PUT | /missions/{id}/start | Start mission |
+| PUT | /missions/{id}/complete | Finish mission successfully |
+| PUT | /missions/{id}/fail | Finish mission as failed |
+| PUT | /missions/{id}/cancel | Cancel mission |
+
+## Reports endpoints — report_routes.py
+
+| Method | Endpoint | Description |
+|---|---|---|
+| GET | /reports/summary | General system report |
+| GET | /reports/missions-by-status | Missions grouped by status |
+| GET | /reports/top-agent | Top agent (get_top_agent()) |
+
+## System flow — full scenario
+
+1. **Create an agent** — POST /agents/ (name, specialty, agent_rank, is_active defaults to TRUE).
+2. **Create a mission** — POST /missions/ (title, description, location, difficulty, importance). risk_level is calculated automatically, status starts at NEW.
+3. **Assign the mission** — PUT /missions/{id}/assign/{agent_id}. Goes through the 6 checks above, on success, assigned_agent_id is set and status becomes ASSIGNED.
+4. **Start the mission** — PUT /missions/{id}/start. Only works if status is ASSIGNED, moves to IN_PROGRESS.
+5. **Finish the mission** — one of:
+   - PUT /missions/{id}/complete - status completed, agent's completed_missions incremented.
+   - PUT /missions/{id}/fail - status failed, agent's failed_missions incremented.
+   - PUT /missions/{id}/cancel - status canceled (only allowed from NEW or ASSIGNED).
+6. **Check agent performance** — GET /agents/{id}/performance reflects the updated completed/failed/success_rate.
+7. **Pull reports** — GET /reports/summary, GET /reports/missions-by-status, GET /reports/top-agent reflect the change across the whole system.
+
+## Running instructions
+
+### 1. Start MySQL with Docker
+
+```bash
+docker run -d --name intelligence-mysql -e MYSQL_ROOT_PASSWORD=1234 \
+    -e MYSQL_DATABASE=Intelligence_db \
+    -p 3306:3306 mysql:8.0
+```
+
+### 2. Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the FastAPI server
+
+```
+python main.py
+```

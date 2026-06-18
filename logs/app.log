@@ -102,3 +102,53 @@ TypeError: DB_connection.get_connection() got an unexpected keyword argument 'di
 2026-06-18 15:31:07,287 | INFO | mission start failed: Only a mission with status ASSIGNED can be started
 2026-06-18 15:33:45,474 | INFO | PUT /1/start call
 2026-06-18 15:33:45,512 | INFO | mission start failed: Only a mission with status ASSIGNED can be started
+2026-06-18 16:19:02,364 | INFO | GET /missions called
+2026-06-18 16:19:02,401 | INFO | GET all missions successfully
+2026-06-18 16:19:47,741 | INFO | POST /mission called
+2026-06-18 16:19:47,791 | INFO | POST /mission success
+2026-06-18 16:20:01,084 | INFO | GET /mission by id:3 called
+2026-06-18 16:20:01,098 | INFO | GET /mission by id:3 success
+2026-06-18 16:20:13,431 | INFO | POST /1/assign/1 called
+2026-06-18 16:20:13,535 | INFO | POST /1/assign/1 succeed
+2026-06-18 16:20:23,199 | INFO | POST /1/assign/1 called
+2026-06-18 16:20:23,243 | ERROR | POST /1/assign/1 failed
+2026-06-18 16:20:30,138 | INFO | POST /3/assign/1 called
+2026-06-18 16:20:30,241 | INFO | POST /3/assign/1 succeed
+2026-06-18 16:20:38,441 | INFO | POST /mission called
+2026-06-18 16:20:38,479 | INFO | POST /mission success
+2026-06-18 16:20:50,879 | INFO | POST /4/assign/1 called
+2026-06-18 16:20:50,946 | ERROR | POST /4/assign/1 failed
+2026-06-18 16:21:07,510 | INFO | PUT /4/start call
+2026-06-18 16:21:07,543 | INFO | mission start failed: Only a mission with status ASSIGNED can be started
+2026-06-18 16:21:23,591 | INFO | GET /missions called
+2026-06-18 16:21:23,607 | INFO | GET all missions successfully
+2026-06-18 16:21:42,526 | INFO | PUT /3/start call
+2026-06-18 16:21:42,570 | INFO | PUT missions/3/start finish
+2026-06-18 16:21:54,005 | INFO | GET /missions called
+2026-06-18 16:21:54,018 | INFO | GET all missions successfully
+2026-06-18 16:22:08,220 | INFO | PUT /3/start call
+2026-06-18 16:22:08,263 | INFO | mission start failed: Only a mission with status ASSIGNED can be started
+2026-06-18 16:22:22,754 | INFO | PUT /3/complete call
+2026-06-18 16:22:22,803 | INFO | PUT missions/3/complete finish
+2026-06-18 16:22:34,516 | INFO | GET /agents called
+2026-06-18 16:22:34,529 | INFO | GET all agents successfully
+2026-06-18 16:22:48,147 | INFO | POST /agents called
+2026-06-18 16:22:48,181 | INFO | POST /agents success
+2026-06-18 16:23:00,002 | INFO | PUT 2/deactivate called
+2026-06-18 16:23:00,037 | INFO | PUT 2/deactivate success
+2026-06-18 16:23:07,585 | INFO | GET /agents called
+2026-06-18 16:23:07,599 | INFO | GET all agents successfully
+2026-06-18 16:23:30,750 | INFO | GET /1/performance called
+2026-06-18 16:23:30,788 | INFO | GET /1/performance success
+2026-06-18 16:23:38,347 | INFO | GET /2/performance called
+2026-06-18 16:23:38,373 | INFO | GET /2/performance success
+2026-06-18 16:23:43,821 | INFO | GET /1/performance called
+2026-06-18 16:23:43,859 | INFO | GET /1/performance success
+2026-06-18 16:24:08,076 | INFO | GET /agents called
+2026-06-18 16:24:08,090 | INFO | GET all agents successfully
+2026-06-18 16:24:34,994 | INFO | GET /agent by id:1 called
+2026-06-18 16:24:35,007 | INFO | GET /agent by id:{id} success
+2026-06-18 16:25:06,268 | INFO | PUT /agent update by id:1 called
+2026-06-18 16:25:06,300 | INFO | PUT /agent update by id:1 success
+2026-06-18 16:25:13,696 | INFO | GET /agents called
+2026-06-18 16:25:13,710 | INFO | GET all agents successfully
