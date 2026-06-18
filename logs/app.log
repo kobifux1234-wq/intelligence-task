@@ -1,0 +1,104 @@
+2026-06-18 11:12:27,592 | ERROR | PUT /agent update by id:2: not updated
+2026-06-18 11:14:52,275 | CRITICAL | message: 
+Traceback (most recent call last):
+  File "c:\vs\army_test\intelligence-task-manager\routes\agent_routes.py", line 72, in update_agent
+    agent = ag_db.update_agent(id,up_agent.model_dump(exclude_none=True))
+  File "c:\vs\army_test\intelligence-task-manager\database\agent_db.py", line 67, in update_agent
+    raise ValueError
+ValueError
+2026-06-18 11:16:28,623 | ERROR | GET /agent by id:{id} failed
+2026-06-18 11:16:28,624 | CRITICAL | message: 404: Id not found
+Traceback (most recent call last):
+  File "c:\vs\army_test\intelligence-task-manager\routes\agent_routes.py", line 61, in update_agent
+    raise HTTPException(status_code= 404,detail="Id not found")
+fastapi.exceptions.HTTPException: 404: Id not found
+2026-06-18 11:17:59,885 | ERROR | GET /agent by id:{id} failed
+2026-06-18 11:17:59,886 | CRITICAL | message: 404: Id not found
+Traceback (most recent call last):
+  File "c:\vs\army_test\intelligence-task-manager\routes\agent_routes.py", line 61, in update_agent
+    raise HTTPException(status_code= 404,detail="Id not found")
+fastapi.exceptions.HTTPException: 404: Id not found
+2026-06-18 11:23:40,192 | INFO | GET /agent by id:2 called
+2026-06-18 11:23:40,218 | ERROR | GET /agent by id:{id} failed
+2026-06-18 11:23:40,218 | WARNING | message: 404: Id not found
+Traceback (most recent call last):
+  File "c:\vs\army_test\intelligence-task-manager\routes\agent_routes.py", line 60, in update_agent
+    raise HTTPException(status_code= 404,detail="Id not found")
+fastapi.exceptions.HTTPException: 404: Id not found
+2026-06-18 11:23:43,745 | INFO | GET /agent by id:1 called
+2026-06-18 11:23:43,758 | INFO | GET /agent by id:{id} success
+2026-06-18 11:50:27,713 | INFO | POST /mission called
+2026-06-18 11:50:27,749 | INFO | POST /mission success
+2026-06-18 11:50:38,284 | INFO | GET /missions called
+2026-06-18 11:50:38,298 | INFO | GET all missions successfully
+2026-06-18 11:51:22,529 | INFO | GET /missions called
+2026-06-18 11:51:22,554 | INFO | GET all missions successfully
+2026-06-18 11:51:37,951 | INFO | GET /missions called
+2026-06-18 11:51:37,952 | WARNING | message: DB_connection.get_connection() got an unexpected keyword argument 'dictionary'
+Traceback (most recent call last):
+  File "c:\vs\army_test\intelligence-task-manager\routes\mission_routes.py", line 22, in get_all_missions
+    mission = miss_db.get_all_missions()
+  File "c:\vs\army_test\intelligence-task-manager\database\mission_db.py", line 53, in get_all_missions
+    conn=db_c.get_connection(dictionary=True)
+TypeError: DB_connection.get_connection() got an unexpected keyword argument 'dictionary'
+2026-06-18 11:51:41,008 | INFO | GET /missions called
+2026-06-18 11:51:41,009 | WARNING | message: DB_connection.get_connection() got an unexpected keyword argument 'dictionary'
+Traceback (most recent call last):
+  File "c:\vs\army_test\intelligence-task-manager\routes\mission_routes.py", line 22, in get_all_missions
+    mission = miss_db.get_all_missions()
+  File "c:\vs\army_test\intelligence-task-manager\database\mission_db.py", line 53, in get_all_missions
+    conn=db_c.get_connection(dictionary=True)
+TypeError: DB_connection.get_connection() got an unexpected keyword argument 'dictionary'
+2026-06-18 11:52:21,503 | INFO | GET /missions called
+2026-06-18 11:52:21,531 | INFO | GET all missions successfully
+2026-06-18 12:16:31,966 | INFO | POST /mission called
+2026-06-18 12:16:31,967 | WARNING | message: DB_connection.get_connection() got an unexpected keyword argument 'dictionary'
+Traceback (most recent call last):
+  File "c:\vs\army_test\intelligence-task-manager\routes\mission_routes.py", line 50, in create_mission
+    mission=miss_db.create_mission(new_mission.model_dump())
+  File "c:\vs\army_test\intelligence-task-manager\database\mission_db.py", line 30, in create_mission
+    conn=db_c.get_connection(dictionary=True)
+TypeError: DB_connection.get_connection() got an unexpected keyword argument 'dictionary'
+2026-06-18 12:17:41,381 | INFO | POST /mission called
+2026-06-18 12:17:41,425 | INFO | POST /mission success
+2026-06-18 12:17:53,719 | INFO | GET /missions called
+2026-06-18 12:17:53,733 | INFO | GET all missions successfully
+2026-06-18 12:18:38,168 | INFO | GET /missions called
+2026-06-18 12:18:38,188 | INFO | GET all missions successfully
+2026-06-18 12:19:12,411 | INFO | GET /agents called
+2026-06-18 12:19:12,425 | INFO | GET all agents successfully
+2026-06-18 12:29:21,665 | INFO | POST /2/assign/1 called
+2026-06-18 12:29:21,773 | ERROR | POST /2/assign/1 failed
+2026-06-18 12:31:27,728 | INFO | PUT /agent update by id:1 called
+2026-06-18 12:31:27,777 | INFO | PUT /agent update by id:1 success
+2026-06-18 12:31:47,765 | INFO | POST /2/assign/1 called
+2026-06-18 12:31:47,868 | INFO | POST /2/assign/1 succeed
+2026-06-18 12:36:13,789 | INFO | GET /missions called
+2026-06-18 12:36:13,802 | INFO | GET all missions successfully
+2026-06-18 15:01:38,527 | INFO | GET /1/start call
+2026-06-18 15:02:53,487 | INFO | GET /1/start call
+2026-06-18 15:02:53,538 | INFO | mission start failed: Only a mission with status ASSIGNED can be started
+2026-06-18 15:04:52,368 | INFO | GET /1/start call
+2026-06-18 15:04:52,406 | INFO | mission start failed: Only a mission with status ASSIGNED can be started
+2026-06-18 15:06:19,205 | INFO | GET /1/start call
+2026-06-18 15:06:29,412 | INFO | GET /1/start call
+2026-06-18 15:06:29,448 | INFO | mission start failed: 
+2026-06-18 15:06:40,263 | INFO | GET /1/start call
+2026-06-18 15:06:40,300 | INFO | mission start failed: 
+2026-06-18 15:06:52,966 | INFO | GET /missions called
+2026-06-18 15:06:52,980 | INFO | GET all missions successfully
+2026-06-18 15:07:42,906 | INFO | GET /1/start call
+2026-06-18 15:07:42,948 | INFO | mission start failed: 
+2026-06-18 15:11:07,770 | INFO | GET /1/start call
+2026-06-18 15:11:07,807 | INFO | mission start failed: 
+2026-06-18 15:13:28,711 | INFO | GET /missions called
+2026-06-18 15:13:28,737 | INFO | GET all missions successfully
+2026-06-18 15:13:33,651 | INFO | GET /1/start call
+2026-06-18 15:13:33,692 | INFO | mission start failed: Only a mission with status ASSIGNED can be started
+2026-06-18 15:15:55,822 | INFO | GET /1/start call
+2026-06-18 15:15:55,863 | INFO | mission start failed: Only a mission with status ASSIGNED can be started
+2026-06-18 15:28:29,389 | INFO | PUT /1/start call
+2026-06-18 15:31:07,251 | INFO | PUT /1/start call
+2026-06-18 15:31:07,287 | INFO | mission start failed: Only a mission with status ASSIGNED can be started
+2026-06-18 15:33:45,474 | INFO | PUT /1/start call
+2026-06-18 15:33:45,512 | INFO | mission start failed: Only a mission with status ASSIGNED can be started
