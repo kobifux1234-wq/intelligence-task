@@ -19,11 +19,12 @@ class DB_connection:
             cursor = conn.cursor()
             cursor.execute("CREATE DATABASE IF NOT EXISTS intelligence_db")
             conn.commit()
-        except:return ("Problem in connection and creating database")
+        except mysql.connector.Error as e:raise Exception ("Problem in connection and creating database") from e
         finally:
-            
-            cursor.close()
-            conn.close()
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
         
     def create_table():
         conn= None
@@ -38,7 +39,7 @@ class DB_connection:
                 is_active BOOLEAN DEFAULT TRUE,
                 completed_missions INT DEFAULT 0,
                 failed_missions INT DEFAULT 0,
-                agent_rank ENUM("Commander","Senior","Junior")
+                agent_rank ENUM("Commander","Senior","Junior") NOT NULL
                 )""")
             
             cursor.execute("""CREATE TABLE IF NOT EXISTS missions(
@@ -54,7 +55,9 @@ class DB_connection:
             )""")
             conn.commit()
             
-        except: return ("Problem in connection and creating tables")
+        except mysql.connector.Error as e: raise Exception ("Problem in connection and creating tables") from e
         finally: 
-            cursor.close()
-            conn.close()
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
