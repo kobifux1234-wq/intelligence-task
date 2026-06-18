@@ -8,7 +8,7 @@ class AgentDB:
         cursor = None
         try:
             conn=db_c.get_connection()
-            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
             cursor.execute("SELECT * FROM agents WHERE id = %s", (id,))
             return cursor.fetchone()
         except: raise("Error: connection problem to get agent")
@@ -26,7 +26,7 @@ class AgentDB:
         cursor = None
         try:
             conn=db_c.get_connection()
-            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
             key = ", ".join(data.keys())
             placeholders= ", ".join(["%s"]*len(data))
             sql =f"INSERT INTO agents({key}) VALUES ({placeholders})"
@@ -48,19 +48,23 @@ class AgentDB:
         cursor = None
         try:
             conn=db_c.get_connection()
-            cursor = conn.cursor()
+            cursor = conn.cursor(dictionary=True)
             cursor.execute("SELECT * FROM agents")
             rows=cursor.fetchall()
-        except: raise Exception("error get all agents")
+            return rows
+        except mysql.connector.Error as e: raise Exception("error get all agents") from e
         finally:
             if cursor:
                 cursor.close()
             if conn:
                 conn.close()
-        return rows
+        
     
     @staticmethod
     def update_agent(id,data):
+        agent=AgentDB.agent_by_id(id)
+        if agent is None:
+            raise ValueError
         if data.get("agent_rank") not in ["Commander", "Junior","Senior"]:
             raise Exception("Incorrect agent rank")
         conn= None
@@ -74,7 +78,7 @@ class AgentDB:
             cursor.execute(sql,value)
             conn.commit()
             return cursor.rowcount>0
-        except: raise Exception("Error happened in update agent")
+        except mysql.connector.Error as e: raise Exception("Error happened in update agent") from e
         finally:
             if cursor:
                 cursor.close()
@@ -83,6 +87,9 @@ class AgentDB:
     
     @staticmethod     
     def deactivate_agent(id):
+        agent=AgentDB.agent_by_id(id)
+        if agent is None:
+            raise ValueError
         conn= None
         cursor = None
         try:
@@ -91,7 +98,7 @@ class AgentDB:
             cursor.execute("UPDATE agents SET is_active = FALSE WHERE id =%s",(id,))
             conn.commit()
             return cursor.rowcount>0
-        except: raise Exception("Error happened in update agent deactive")
+        except mysql.connector.Error as e: raise Exception("Error happened in update agent deactivate") from e
         finally:
             if cursor:
                 cursor.close()
@@ -108,7 +115,7 @@ class AgentDB:
             cursor.execute("UPDATE agents SET completed_missions = completed_missions +  1 WHERE id =%s",(id,))
             conn.commit()
             return cursor.rowcount>0
-        except: raise Exception("Error happened in update agent completed missions")
+        except mysql.connector.Error as e: raise Exception("Error happened in update agent completed missions") from e
         finally:
             if cursor:
                 cursor.close()
@@ -125,7 +132,7 @@ class AgentDB:
             cursor.execute("UPDATE agents SET failed_missions = failed_missions +  1 WHERE id =%s",(id,))
             conn.commit()
             return cursor.rowcount>0
-        except: raise Exception("Error happened in update agent failed missions")
+        except mysql.connector.Error as e: raise Exception("Error happened in update agent failed missions") from e
         finally:
             if cursor:
                 cursor.close()
@@ -134,6 +141,9 @@ class AgentDB:
     
     @staticmethod
     def get_agent_performance(id):
+        agent=AgentDB.agent_by_id(id)
+        if agent is None:
+            raise ValueError
         conn= None
         cursor = None
         try:
@@ -148,7 +158,7 @@ class AgentDB:
             if success+failed == 0: rate=0
             else: rate= success/(failed+success)
             return {"completed":success, "failed": failed, "total": success+failed, "success_rate":rate}
-        except: raise Exception("Error happened in gets agent performance")
+        except mysql.connector.Error as e: raise Exception("Error happened in gets agent performance") from e
         finally:
             if cursor:
                 cursor.close()
